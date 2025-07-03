@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 import time
 import os
+import shutil
 from datetime import datetime
 from picamera2 import Picamera2
 
@@ -12,7 +13,12 @@ def main():
 
     # Create output folder named with start datetime
     start_dt = datetime.now().strftime("%Y%m%d_%H%M%S")
-    folder = f"timelapse_{start_dt}"
+    # folder = f"timelapse_{start_dt}"
+    # Wipe each time for testing:
+    folder = "test_folder"
+    if os.path.isdir(folder):
+        shutil.rmtree(folder)
+
     os.makedirs(folder, exist_ok=True)
 
     # Configure and start camera
