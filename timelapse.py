@@ -4,7 +4,6 @@ import os
 import shutil
 from datetime import datetime
 from picamera2 import Picamera2
-from libcamera import Transform          
 
 
 def main():
@@ -26,7 +25,6 @@ def main():
     # Configure and start camera
     picam2 = Picamera2()
     config = picam2.create_still_configuration(main={"size": (1920, 1080)})
-    config["transform"] = libcamera.Transform(hflip=1, vflip=1)
 
     picam2.configure(config)
     picam2.align_configuration(config)
