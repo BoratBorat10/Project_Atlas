@@ -9,7 +9,7 @@ from picamera2 import Picamera2
 def main():
     # Parameters
     interval = 1           # seconds between shots
-    total_duration = 90 * 60    # total run time in seconds
+    total_duration = 30 * 60    # total run time in seconds
     frames = total_duration // interval
 
     # Create output folder named with start datetime
