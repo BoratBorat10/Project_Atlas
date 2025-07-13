@@ -3,6 +3,7 @@ import os
 import time
 import threading
 import subprocess
+import logging
 from datetime import datetime
 import serial
 import pynmea2
@@ -16,6 +17,7 @@ def sync_time_and_mkdir(base_path="/home/pi"):
     print("Starting serial connection")
     while True:
         line = ser.readline().decode(errors="ignore").strip()
+        print(line)
         if not line or not line.startswith("$GPRMC"):
             continue
         try:
