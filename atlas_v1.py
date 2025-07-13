@@ -12,9 +12,9 @@ import gpxpy.gpx
 from picamera2 import Picamera2
 
 # 1) wait for GPS time, then set system clock
-def sync_time_and_mkdir(base_path="/home/pi"):
+def sync_time_and_mkdir(base_path="/home/pi/project"):
     ser = serial.Serial("/dev/serial0", 9600, timeout=1)
-    print("Starting serial connection")
+    print("Starting serial connection(2!!)")
     while True:
         line = ser.readline().decode(errors="ignore").strip()
         print(line)
@@ -24,8 +24,12 @@ def sync_time_and_mkdir(base_path="/home/pi"):
             msg = pynmea2.parse(line)
         except pynmea2.ParseError:
             continue
-        if msg.status == "A":  # data valid
+        try:
+            msg.status == "A"  # data valid
             print("Got a fix!")
+        except:
+            print("no fix set: setting time")
+        finally:
             # build datetime from RMC
             dt = datetime.combine(msg.datestamp, msg.timestamp)
             print("Time from GPS", dt)
@@ -69,7 +73,7 @@ def camera_job(folder):
 
     # Capture loop
     for i in range(int(frames)):
-        now = datetime.now().strftime("%Y%m%d_%H%M%S")
+        now = datetime.utcnow().strftime("%Y%m%d_%H%M%S") # this time is also one hour back
         filename = os.path.join(folder, f"{now}.jpg")
         picam2.capture_file(filename)
         print(f"Captured {filename} ({i+1}/{int(frames)})")
@@ -97,14 +101,15 @@ def gps_job(folder):
             continue
         if isinstance(msg, pynmea2.types.talker.GGA):
             t = datetime.utcnow()
+            print(t) # this is one hour back
             lat, lon, ele = msg.latitude, msg.longitude, msg.altitude
             seg.points.append(gpxpy.gpx.GPXTrackPoint(lat, lon, elevation=ele, time=t))
             # overwrite GPX each fix
-            with open(os.path.join(folder, "track.gpx"), "w") as f:
+            with open(os.path.join(folder, f"{folder}.gpx"), "w") as f:
                 f.write(gpx.to_xml())
 
 if __name__ == "__main__":
-    base = "/home/pi"
+    base = "/home/pi/data"
     fld = sync_time_and_mkdir(base)
     # start both jobs
     threading.Thread(target=camera_job, args=(fld,), daemon=True).start()
